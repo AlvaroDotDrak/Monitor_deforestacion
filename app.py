@@ -1,5 +1,12 @@
 import streamlit as st
 
+# ── Configuración Global de Página ──────────────────────────────────────────
+st.set_page_config(
+    page_title="Monitor IA — Deforestación e Incendios",
+    page_icon="🌿",
+    layout="wide",
+)
+
 # ── Configuración de Páginas y Navegación Multipage ─────────────────────────
 inicio_page = st.Page(
     "pages/0_Inicio.py",

@@ -1,13 +1,6 @@
 import streamlit as st
 import os
 
-# ── Configuración de Página ──────────────────────────────────────────────────
-st.set_page_config(
-    page_title="Metodología — Monitor IA",
-    page_icon="📚",
-    layout="wide",
-)
-
 # ── Inyección de CSS Personalizado (Estilo Moderno & Premium) ──────────────────
 if os.path.exists("style.css"):
     with open("style.css", "r", encoding="utf-8") as f:
