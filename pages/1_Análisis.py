@@ -145,82 +145,6 @@ with st.sidebar:
 
         st.divider()
 
-        # ── Selector de Área (Bbox Dinámico) ────────────────────────────────
-        st.subheader("🗺️ Área de Interés")
-        
-        # Mostrar métricas del área actual
-        bbox_valido, ancho_px, alto_px, ancho_km, alto_km, recortado = validar_bbox(BBOX)
-        st.write(f"📐 **Tamaño:** {ancho_km} km × {alto_km} km")
-        st.write(f"📍 **Bbox:** `[{BBOX[0]:.4f}, {BBOX[1]:.4f}, {BBOX[2]:.4f}, {BBOX[3]:.4f}]`")
-        
-        # Buscador de ciudad/lugar
-        buscar_lugar = st.text_input("🔍 Buscar ciudad o lugar", placeholder="Ej: Constitución, Chile", key="buscador_lugar")
-        
-        if buscar_lugar:
-            try:
-                loc = _geocodificar(buscar_lugar)
-                if loc:
-                    st.session_state["centro_mapa"] = (loc[0], loc[1])
-                    st.success(f"Encontrado: {loc[2][:50]}...")
-                else:
-                    st.error("No se encontró el lugar. Intenta con más detalles (ej. Chile).")
-            except Exception as e:
-                st.error(f"Error al geocodificar: {e}")
-                
-        # Centro del mapa de selección
-        lat_c = (BBOX[1] + BBOX[3]) / 2
-        lon_c = (BBOX[0] + BBOX[2]) / 2
-        centro = st.session_state.get("centro_mapa", (lat_c, lon_c))
-        
-        # Dibujar mapa folium con plugin Draw
-        m_dibujo = folium.Map(location=centro, zoom_start=11)
-        draw_tool = Draw(
-            draw_options={
-                'polyline': False,
-                'polygon': False,
-                'circle': False,
-                'marker': False,
-                'circlemarker': False,
-                'rectangle': True
-            },
-            edit_options={'edit': False}
-        )
-        draw_tool.add_to(m_dibujo)
-        
-        output_mapa = st_folium(m_dibujo, key="mapa_bbox", height=220, use_container_width=True)
-        
-        # Capturar el dibujo
-        dibujo = None
-        if output_mapa and "last_active_drawing" in output_mapa:
-            dibujo = output_mapa["last_active_drawing"]
-            
-        if dibujo:
-            bbox_dibujado = obtener_bbox_de_dibujo(dibujo)
-            if bbox_dibujado:
-                if st.button("🗺️ Usar esta área", use_container_width=True):
-                    # Validar y recortar si es necesario
-                    bbox_valido, ancho_px, alto_px, ancho_km, alto_km, recortado = validar_bbox(bbox_dibujado)
-                    st.session_state["bbox_usuario"] = bbox_valido
-                    
-                    if recortado:
-                        st.session_state["alerta_bbox"] = f"⚠️ El área excedía el límite Copernicus (50km). Se recortó automáticamente a {ancho_km}km × {alto_km}km."
-                    else:
-                        st.session_state["alerta_bbox"] = f"✅ Área guardada: {ancho_km}km × {alto_km}km."
-                        
-                    # Limpiar caché de resultados previos para forzar recarga
-                    for k in ["zonas", "ndvi1", "ndvi2", "cambio", "mapa", "mascara_alerta"]:
-                        st.session_state.pop(k, None)
-                    st.rerun()
-                    
-        # Mostrar alerta de bbox si existe en session_state
-        if "alerta_bbox" in st.session_state:
-            if st.session_state["alerta_bbox"].startswith("⚠️"):
-                st.warning(st.session_state["alerta_bbox"])
-            else:
-                st.success(st.session_state["alerta_bbox"])
-
-        st.divider()
-
         # ── Atajos rápidos ──────────────────────────────────────────────────
         st.subheader("⚡ Atajos")
         c1, c2, c3 = st.columns(3)
@@ -310,6 +234,82 @@ with st.sidebar:
             * **< 0.1:** Suelo desnudo, áreas quemadas o cosechadas.
             """
         )
+
+# ── Selector de Área de Interés (área principal) ───────────────────────────────
+if not use_demo:
+    st.subheader("🗺️ Área de interés")
+
+    col_controles, col_mapa = st.columns([1, 2])
+
+    with col_controles:
+        bbox_valido, ancho_px, alto_px, ancho_km, alto_km, _ = validar_bbox(BBOX)
+        st.metric("Ancho", f"{ancho_km} km")
+        st.metric("Alto",  f"{alto_km} km")
+        st.caption(f"`{BBOX[0]:.4f}, {BBOX[1]:.4f}`\n`{BBOX[2]:.4f}, {BBOX[3]:.4f}`")
+
+        buscar_lugar = st.text_input("🔍 Buscar ciudad o lugar",
+                                     placeholder="Ej: Talca, Chile",
+                                     key="buscador_lugar")
+        if buscar_lugar:
+            try:
+                loc = _geocodificar(buscar_lugar)
+                if loc:
+                    st.session_state["centro_mapa"] = (loc[0], loc[1])
+                    st.success(f"📍 {loc[2][:55]}...")
+                else:
+                    st.error("No se encontró. Agrega el país (ej: Panguipulli, Chile).")
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+        if "alerta_bbox" in st.session_state:
+            msg = st.session_state["alerta_bbox"]
+            st.warning(msg) if msg.startswith("⚠️") else st.success(msg)
+
+        st.caption("Dibuja un rectángulo en el mapa y presiona el botón.")
+
+    with col_mapa:
+        lat_c  = (BBOX[1] + BBOX[3]) / 2
+        lon_c  = (BBOX[0] + BBOX[2]) / 2
+        centro = st.session_state.get("centro_mapa", (lat_c, lon_c))
+
+        m_dibujo = folium.Map(location=centro, zoom_start=11)
+        # Marcar área actual
+        folium.Rectangle(
+            bounds=[[BBOX[1], BBOX[0]], [BBOX[3], BBOX[2]]],
+            color="#2ecc71", fill=True, fill_opacity=0.1,
+            tooltip="Área actual"
+        ).add_to(m_dibujo)
+        Draw(
+            draw_options={
+                'polyline': False, 'polygon': False, 'circle': False,
+                'marker': False, 'circlemarker': False, 'rectangle': True
+            },
+            edit_options={'edit': False}
+        ).add_to(m_dibujo)
+
+        output_mapa = st_folium(m_dibujo, key="mapa_bbox",
+                                height=400, use_container_width=True)
+
+        dibujo = output_mapa.get("last_active_drawing") if output_mapa else None
+        if dibujo:
+            bbox_dibujado = obtener_bbox_de_dibujo(dibujo)
+            if bbox_dibujado:
+                bv, apx, alx, akm, alkm, recortado = validar_bbox(bbox_dibujado)
+                label = f"✅ Usar esta área ({akm}km × {alkm}km)"
+                if recortado:
+                    label = f"⚠️ Usar área recortada a 50km ({akm}km × {alkm}km)"
+                if st.button(label, use_container_width=True, type="primary"):
+                    st.session_state["bbox_usuario"] = bv
+                    st.session_state["alerta_bbox"]  = (
+                        f"⚠️ Recortado a {akm}km × {alkm}km (límite Copernicus)."
+                        if recortado else
+                        f"✅ Área confirmada: {akm}km × {alkm}km."
+                    )
+                    for k in ["zonas", "ndvi1", "ndvi2", "cambio", "mapa", "mascara_alerta"]:
+                        st.session_state.pop(k, None)
+                    st.rerun()
+
+    st.divider()
 
 # ── Procesamiento y Análisis de Datos ──────────────────────────────────────────
 comp_disponible = all(k in st.session_state for k in [
