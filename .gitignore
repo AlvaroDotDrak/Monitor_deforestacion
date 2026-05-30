@@ -1,0 +1,21 @@
+# Imágenes satelitales y modelo (archivos grandes)
+*.tiff
+*.tif
+*.pkl
+cache/
+
+# Archivos generados por el análisis
+*.png
+*.html
+alertas_zonas.csv
+
+# Python
+__pycache__/
+*.pyc
+
+# Credenciales y entorno
+.env
+.copernicus_creds.json
+
+# Claude
+.claude/
