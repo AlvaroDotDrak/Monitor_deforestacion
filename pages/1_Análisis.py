@@ -18,10 +18,6 @@ from copernicus_api import obtener_token, buscar_imagenes, descargar_compuesto, 
 
 BBOX = [-72.34, -35.38, -72.17, -35.27]  # Constitución / Putú / Carrizal
 
-# ── Inyección de CSS Personalizado (Estilo Moderno & Premium) ──────────────────
-if os.path.exists("style.css"):
-    with open("style.css", "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # ── Banner de Bienvenida Premium ───────────────────────────────────────────────
 st.markdown(

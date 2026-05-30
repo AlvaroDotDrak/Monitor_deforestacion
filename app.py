@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 # ── Configuración Global de Página ──────────────────────────────────────────
 st.set_page_config(
@@ -6,6 +7,18 @@ st.set_page_config(
     page_icon="🌿",
     layout="wide",
 )
+
+# ── CSS global — cargado una sola vez para todas las páginas ─────────────────
+@st.cache_data
+def _cargar_css():
+    if os.path.exists("style.css"):
+        with open("style.css", encoding="utf-8") as f:
+            return f.read()
+    return ""
+
+css = _cargar_css()
+if css:
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
 # ── Configuración de Páginas y Navegación Multipage ─────────────────────────
 inicio_page = st.Page(
