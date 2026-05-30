@@ -5,7 +5,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import io
-import tempfile
 import os
 import requests
 import rasterio
@@ -221,7 +220,6 @@ if analizar and not use_demo:
         st.error("Ingresa tus credenciales de Copernicus en el panel izquierdo.")
         st.stop()
     try:
-        carpeta  = tempfile.mkdtemp()
         progreso = st.progress(0, text="Conectando con Copernicus...")
         token    = obtener_token(api_usuario, api_clave)
 
@@ -230,9 +228,8 @@ if analizar and not use_demo:
             ("reciente", f2_desde, f2_hasta, "comp_2", 55),
         ]:
             progreso.progress(pct, text=f"Descargando compuesto NDVI {label} ({desde} → {hasta})...")
-            ruta = os.path.join(carpeta, f"compuesto_{clave}.tiff")
-            descargar_compuesto(token, BBOX, str(desde), str(hasta),
-                                destino=ruta, max_nubes=api_nubes)
+            ruta = descargar_compuesto(token, BBOX, str(desde), str(hasta),
+                                       max_nubes=api_nubes)
             with rasterio.open(ruta) as src:
                 st.session_state[f"{clave}_b04"]       = [src.read(1).astype(float)]
                 st.session_state[f"{clave}_b08"]       = [src.read(2).astype(float)]
