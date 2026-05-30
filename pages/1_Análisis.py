@@ -10,11 +10,30 @@ import requests
 import rasterio
 import folium
 from datetime import date
+from geopy.geocoders import Nominatim
+from folium.plugins import Draw
+from streamlit_folium import st_folium
 
 import core
 from core import leer_banda, calcular_ndvi, calcular_nbr, crear_compuesto, detectar_zonas, crear_mapa, clasificar_tipo, validar_bbox, BBOX_DEFAULT
 import base64
 from copernicus_api import obtener_token, buscar_imagenes, descargar_compuesto, descargar_rgb
+
+# ── Función Helper para Bbox de Dibujo Folium ───────────────────────────────
+def obtener_bbox_de_dibujo(dibujo):
+    if not dibujo or "geometry" not in dibujo:
+        return None
+    geom = dibujo["geometry"]
+    if geom["type"] == "Polygon":
+        coords = geom["coordinates"][0]
+        lons = [c[0] for c in coords]
+        lats = [c[1] for c in coords]
+        lon_o = min(lons)
+        lat_s = min(lats)
+        lon_e = max(lons)
+        lat_n = max(lats)
+        return [lon_o, lat_s, lon_e, lat_n]
+    return None
 
 # Bbox dinámica: usa la seleccionada por el usuario o Constitución por defecto
 if "bbox_usuario" not in st.session_state:
@@ -113,6 +132,83 @@ with st.sidebar:
         api_usuario = st.text_input("Usuario", key="api_user",
                                     placeholder="correo@ejemplo.com")
         api_clave   = st.text_input("Contraseña", type="password", key="api_pass")
+
+        st.divider()
+
+        # ── Selector de Área (Bbox Dinámico) ────────────────────────────────
+        st.subheader("🗺️ Área de Interés")
+        
+        # Mostrar métricas del área actual
+        bbox_valido, ancho_px, alto_px, ancho_km, alto_km, recortado = validar_bbox(BBOX)
+        st.write(f"📐 **Tamaño:** {ancho_km} km × {alto_km} km")
+        st.write(f"📍 **Bbox:** `[{BBOX[0]:.4f}, {BBOX[1]:.4f}, {BBOX[2]:.4f}, {BBOX[3]:.4f}]`")
+        
+        # Buscador de ciudad/lugar
+        buscar_lugar = st.text_input("🔍 Buscar ciudad o lugar", placeholder="Ej: Constitución, Chile", key="buscador_lugar")
+        
+        if buscar_lugar:
+            try:
+                geolocator = Nominatim(user_agent="monitor_deforestacion_antigravity")
+                location = geolocator.geocode(buscar_lugar)
+                if location:
+                    st.session_state["centro_mapa"] = (location.latitude, location.longitude)
+                    st.success(f"Encontrado: {location.address[:40]}...")
+                else:
+                    st.error("No se encontró el lugar. Intenta con más detalles (ej. Chile).")
+            except Exception as e:
+                st.error(f"Error al geocodificar: {e}")
+                
+        # Centro del mapa de selección
+        lat_c = (BBOX[1] + BBOX[3]) / 2
+        lon_c = (BBOX[0] + BBOX[2]) / 2
+        centro = st.session_state.get("centro_mapa", (lat_c, lon_c))
+        
+        # Dibujar mapa folium con plugin Draw
+        m_dibujo = folium.Map(location=centro, zoom_start=11)
+        draw_tool = Draw(
+            draw_options={
+                'polyline': False,
+                'polygon': False,
+                'circle': False,
+                'marker': False,
+                'circlemarker': False,
+                'rectangle': True
+            },
+            edit_options={'edit': False}
+        )
+        draw_tool.add_to(m_dibujo)
+        
+        output_mapa = st_folium(m_dibujo, key="mapa_bbox", height=220, use_container_width=True)
+        
+        # Capturar el dibujo
+        dibujo = None
+        if output_mapa and "last_active_drawing" in output_mapa:
+            dibujo = output_mapa["last_active_drawing"]
+            
+        if dibujo:
+            bbox_dibujado = obtener_bbox_de_dibujo(dibujo)
+            if bbox_dibujado:
+                if st.button("🗺️ Usar esta área", use_container_width=True):
+                    # Validar y recortar si es necesario
+                    bbox_valido, ancho_px, alto_px, ancho_km, alto_km, recortado = validar_bbox(bbox_dibujado)
+                    st.session_state["bbox_usuario"] = bbox_valido
+                    
+                    if recortado:
+                        st.session_state["alerta_bbox"] = f"⚠️ El área excedía el límite Copernicus (50km). Se recortó automáticamente a {ancho_km}km × {alto_km}km."
+                    else:
+                        st.session_state["alerta_bbox"] = f"✅ Área guardada: {ancho_km}km × {alto_km}km."
+                        
+                    # Limpiar caché de resultados previos para forzar recarga
+                    for k in ["zonas", "ndvi1", "ndvi2", "cambio", "mapa", "mascara_alerta"]:
+                        st.session_state.pop(k, None)
+                    st.rerun()
+                    
+        # Mostrar alerta de bbox si existe en session_state
+        if "alerta_bbox" in st.session_state:
+            if st.session_state["alerta_bbox"].startswith("⚠️"):
+                st.warning(st.session_state["alerta_bbox"])
+            else:
+                st.success(st.session_state["alerta_bbox"])
 
         st.divider()
 
@@ -216,6 +312,7 @@ archivos_listos = use_demo or comp_disponible
 
 # Descarga automática al presionar Analizar (si no es demo)
 if analizar and not use_demo:
+    st.session_state.pop("alerta_bbox", None)
     if not api_usuario or not api_clave:
         st.error("Ingresa tus credenciales de Copernicus en el panel izquierdo.")
         st.stop()
