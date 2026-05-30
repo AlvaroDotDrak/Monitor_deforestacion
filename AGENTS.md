@@ -29,7 +29,7 @@ cambios de vegetación en imágenes Sentinel-2 y clasifica si es tala o incendio
 
 **Lo que YA funciona:**
 - Dashboard Streamlit completo (`app.py`) con descarga automática de Sentinel Hub
-- Clasificador Random Forest 3 clases (tala / incendio / sin cambio)
+- Clasificador XGBoost 3 clases (tala / incendio / sin cambio), entrenado con GPU CUDA
 - Detección de zonas con polígonos reales en mapa Folium interactivo
 - Sombreado toggleable, capas Sentinel-2 RGB, mini-mapa por zona
 - Sistema de caché en `cache/` para no re-descargar imágenes
@@ -40,6 +40,57 @@ cambios de vegetación en imágenes Sentinel-2 y clasifica si es tala o incendio
 2. Calculadora de CO₂ (hectáreas → toneladas carbono)
 3. Gráfico histórico NDVI del CSV en el dashboard
 4. Verificar que la detección de incendios mejore tras reentrenar con zona 3
+
+---
+
+## Protocolo de colaboración entre agentes
+
+### Flujo de trabajo con ramas (obligatorio)
+
+**Nunca trabajar directamente en `main`.** Cada tarea va en su propia rama:
+
+```bash
+git checkout -b feat/nombre-tarea   # crear rama
+# ... implementar ...
+git add archivo.py
+git commit -m "descripción del cambio"
+# avisar al usuario para que Claude revise antes de mergear a main
+```
+
+Nombres de rama sugeridos:
+```
+feat/co2-calculator
+feat/historical-ndvi
+feat/css-layout
+feat/multi-page
+```
+
+### Ficha de defensa (obligatoria antes de mergear)
+
+Antes de que el usuario mergee tu rama a `main`, debés completar esta ficha
+como comentario en tu último commit o mensaje al usuario:
+
+```
+## Tarea: [nombre de la tarea]
+Agente: [tu nombre]
+Rama: feat/xxx
+
+Archivos TOCADOS:
+  - app.py (líneas X-Y): [qué cambié y por qué]
+
+Archivos NO TOCADOS (y por qué no los necesité):
+  - core.py: [razón]
+  - copernicus_api.py: [razón]
+
+Decisión de diseño más importante:
+  [Qué alternativa elegiste y por qué descartaste la otra]
+
+Verifiqué que no rompe nada:
+  [ ] python3 -c "import ast; ast.parse(open('app.py').read()); print('OK')"
+  [ ] python3 -c "import ast; ast.parse(open('core.py').read()); print('OK')"
+```
+
+Claude revisa el diff de la rama y aprueba o pide correcciones antes del merge.
 
 ---
 
