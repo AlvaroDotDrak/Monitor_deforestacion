@@ -113,13 +113,18 @@ python3 -c "import ast; ast.parse(open('app.py').read()); print('OK')"
 ## Arquitectura de archivos clave
 
 ```
-app.py              # Streamlit UI — solo presentación y flujo
+app.py              # Streamlit UI — Enrutador multipágina principal
+pages/0_Inicio.py   # Página de inicio / presentación del monitor
+pages/1_Análisis.py # Módulo de análisis y detección (antiguo app.py)
+pages/2_Histórico.py# Módulo de visualización temporal de NDVI (CSV)
+pages/3_Metodología.py # Módulo explicativo de teoría, fórmulas e IA
+style.css           # Estilos CSS centralizados y unificados de la UI
 core.py             # Toda la lógica de análisis (importar desde aquí)
 copernicus_api.py   # Solo comunicación con Sentinel Hub API
 entrenar_modelo.py  # Script standalone — no se importa desde app.py
 ```
 
-**Regla:** `app.py` no debe tener lógica de análisis. Todo va en `core.py`.
+**Regla:** Las páginas de `pages/` y `app.py` no deben tener lógica de análisis. Todo va en `core.py`.
 
 ---
 

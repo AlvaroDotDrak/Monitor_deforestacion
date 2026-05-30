@@ -15,7 +15,12 @@ Zona de Constitución / Putú / Carrizal, Región del Maule, Chile.
 
 | Archivo | Descripción |
 |---|---|
-| `app.py` | Dashboard principal Streamlit |
+| `app.py` | Enrutador multipágina principal Streamlit |
+| `pages/0_Inicio.py` | Página de inicio / presentación del monitor |
+| `pages/1_Análisis.py` | Módulo de análisis comparativo (antiguo app.py) |
+| `pages/2_Histórico.py` | Módulo de visualización temporal de NDVI (CSV) |
+| `pages/3_Metodología.py` | Módulo explicativo de teoría, fórmulas e IA |
+| `style.css` | Estilos CSS centralizados y unificados de la UI |
 | `core.py` | Funciones análisis: NDVI, NBR, zonas, mapa, clasificador |
 | `copernicus_api.py` | API Copernicus: búsqueda + descarga con caché |
 | `entrenar_modelo.py` | Entrenamiento multi-zona, multi-año, multi-estación |

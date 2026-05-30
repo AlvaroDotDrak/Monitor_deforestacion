@@ -16,21 +16,9 @@
   - Prerequisito: DEPLOY-01
   - Opciones documentadas en AGENTS.md
 
-- [ ] **UI-01** — Separar en múltiples páginas (Streamlit multi-page)
-  - Crear carpeta `pages/` con: Análisis, Histórico, Metodología
-  - No tocar: lógica de `core.py`, `copernicus_api.py`
-
-- [ ] **UI-02** — Refinar CSS y layout general
-  - El otro agente (Gemini) ya agregó CSS base en `app.py`
-  - No sobreescribir el bloque `<style>` existente, solo extender
-
 - [ ] **FEAT-01** — Calculadora de impacto CO₂
   - 1 ha bosque ≈ 150-300 ton CO₂
   - Agregar como métrica extra en el dashboard, debajo de las 4 métricas actuales
-
-- [ ] **FEAT-02** — Gráfico histórico NDVI del CSV
-  - Usar `Sentinel-2 L2A-3_NDVI-*.csv` ya analizado
-  - Mostrar en una nueva pestaña o página con plotly/altair
 
 - [ ] **FEAT-03** — Migración a FastAPI + React (largo plazo)
   - Ver DECISIONS.md para el plan de migración
@@ -50,6 +38,9 @@
 
 ## 🟢 Completado
 
+- [x] **UI-01** — Separar en múltiples páginas (Streamlit multi-page)
+- [x] **UI-02** — Refinar CSS y layout general
+- [x] **FEAT-02** — Gráfico histórico NDVI del CSV
 - [x] **MODEL-01** — Clasificador Random Forest 3 clases (tala / incendio / sin cambio)
 - [x] **MODEL-02** — Agregar B12/NBR como feature (9 features totales)
 - [x] **MODEL-03** — Entrenamiento multi-zona, multi-año, multi-estación
