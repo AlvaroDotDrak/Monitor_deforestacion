@@ -263,7 +263,10 @@ if not use_demo:
 
         if "alerta_bbox" in st.session_state:
             msg = st.session_state["alerta_bbox"]
-            st.warning(msg) if msg.startswith("⚠️") else st.success(msg)
+            if msg.startswith("⚠️"):
+                st.warning(msg)
+            else:
+                st.success(msg)
 
         st.caption("Dibuja un rectángulo en el mapa y presiona el botón.")
 
