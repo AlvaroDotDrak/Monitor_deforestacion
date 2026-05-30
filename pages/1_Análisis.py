@@ -63,7 +63,7 @@ with st.sidebar:
             <div style="background-color: rgba(46, 204, 113, 0.15); padding: 12px; border-radius: 8px; border-left: 5px solid #2ecc71; margin-bottom: 20px;">
                 <h4 style="color: #2ecc71; margin: 0; font-size: 14px; font-weight: bold;">🧠 Clasificador ML Activo</h4>
                 <p style="color: #e2f9e6; margin: 4px 0 0 0; font-size: 11px;">
-                    Modelo Random Forest entrenado con datos de Hansen GFC.
+                    Modelo XGBoost entrenado con datos de Hansen GFC y Sentinel-2.
                 </p>
             </div>
             """,
