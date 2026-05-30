@@ -7,3 +7,5 @@ folium
 pandas
 requests
 plotly
+geopy
+streamlit-folium
