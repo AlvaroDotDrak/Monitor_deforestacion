@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* Fuente Global */
+html, body, [class*="css"], .stApp {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Transiciones globales para interacción fluida */
+* {
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Degradado de fondo para el sidebar */
+section[data-testid="stSidebar"] {
+    background-image: linear-gradient(180deg, #091a0f 0%, #030805 100%) !important;
+    border-right: 1px solid rgba(46, 204, 113, 0.15);
+}
+
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2, 
+section[data-testid="stSidebar"] h3, 
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] div {
+    color: #e2f9e6 !important;
+}
+
+/* Botón Primario (Llamativo, Gradiente Verde Forestal) */
+div.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3) !important;
+}
+
+div.stButton > button[kind="primary"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4) !important;
+    background: linear-gradient(135deg, #2eff7d 0%, #2ecc71 100%) !important;
+}
+
+/* Botón Secundario */
+div.stButton > button:not([kind="primary"]) {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+}
+
+div.stButton > button:not([kind="primary"]):hover {
+    border-color: #2ecc71 !important;
+    color: #27ae60 !important;
+}
+
+/* Tarjetas de Métricas Premium */
+div[data-testid="metric-container"] {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.3);
+}
+
+div[data-testid="metric-container"] label {
+    font-size: 14px !important;
+    color: #4a5568 !important;
+    font-weight: 600 !important;
+}
+
+div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+    font-size: 30px !important;
+    font-weight: 700 !important;
+    color: #1e3f20 !important;
+}
+
+/* Personalización de Pestañas */
+button[data-baseweb="tab"] {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #718096 !important;
+}
+
+button[data-baseweb="tab"]:hover {
+    color: #2ecc71 !important;
+}
+
+button[data-baseweb="tab"][aria-selected="true"] {
+    color: #27ae60 !important;
+    border-bottom-color: #27ae60 !important;
+}
+
+/* Bordes redondeados en file uploaders */
+div[data-testid="stFileUploader"] {
+    border: 1px dashed rgba(46, 204, 113, 0.3) !important;
+    border-radius: 10px !important;
+    padding: 5px !important;
+}
+
+/* Estilos de Sliders de Streamlit */
+.stSlider > div [data-baseweb="slider"] {
+    background-color: rgba(46, 204, 113, 0.1) !important;
+}
+
+/* Estilo para los inputs de texto enfocado */
+.stTextInput > div > div > input:focus {
+    border-color: #27ae60 !important;
+    box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.25) !important;
+}
+
+/* Notificaciones y Mensajes de estado (st.success, st.info...) */
+div[data-testid="stNotification"] {
+    border-radius: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+div[data-testid="stNotification"][class*="success"] {
+    background-color: rgba(46, 204, 113, 0.05) !important;
+    border-left: 5px solid #2ecc71 !important;
+}
+
+div[data-testid="stNotification"][class*="info"] {
+    background-color: rgba(52, 152, 219, 0.05) !important;
+    border-left: 5px solid #3498db !important;
+}
+
+div[data-testid="stNotification"][class*="warning"] {
+    background-color: rgba(243, 156, 18, 0.05) !important;
+    border-left: 5px solid #f39c12 !important;
+}
+
+div[data-testid="stNotification"][class*="danger"] {
+    background-color: rgba(231, 76, 60, 0.05) !important;
+    border-left: 5px solid #e74c3c !important;
+}
+
+/* Tarjetas de Contenido en Inicio y Metodología */
+.card-inicio {
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    height: 100%;
+}
+
+.card-inicio:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(46, 204, 113, 0.15);
+    border-color: rgba(46, 204, 113, 0.25);
+}
+
+.card-inicio h3 {
+    color: #1e3f20 !important;
+    margin-top: 0 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+}
+
+.card-inicio p {
+    color: #4a5568 !important;
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+}
+
+.card-teoria {
+    background-color: #f8fafc;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+}
+
+.card-teoria:hover {
+    border-color: rgba(46, 204, 113, 0.15);
+}
+
+.card-teoria h3 {
+    color: #1e3f20 !important;
+    margin-top: 0 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+}
+
+.card-teoria p, .card-teoria li {
+    color: #4a5568 !important;
+    font-size: 14.5px !important;
+    line-height: 1.6 !important;
+}

@@ -6,3 +6,4 @@ scipy
 folium
 pandas
 requests
+plotly
