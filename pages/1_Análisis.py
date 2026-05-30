@@ -12,11 +12,15 @@ import folium
 from datetime import date
 
 import core
-from core import leer_banda, calcular_ndvi, calcular_nbr, crear_compuesto, detectar_zonas, crear_mapa, clasificar_tipo
+from core import leer_banda, calcular_ndvi, calcular_nbr, crear_compuesto, detectar_zonas, crear_mapa, clasificar_tipo, validar_bbox, BBOX_DEFAULT
 import base64
 from copernicus_api import obtener_token, buscar_imagenes, descargar_compuesto, descargar_rgb
 
-BBOX = [-72.34, -35.38, -72.17, -35.27]  # Constitución / Putú / Carrizal
+# Bbox dinámica: usa la seleccionada por el usuario o Constitución por defecto
+if "bbox_usuario" not in st.session_state:
+    st.session_state["bbox_usuario"] = BBOX_DEFAULT
+
+BBOX = st.session_state["bbox_usuario"]
 
 
 # ── Banner de Bienvenida Premium ───────────────────────────────────────────────

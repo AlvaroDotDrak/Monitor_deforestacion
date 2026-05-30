@@ -38,6 +38,65 @@ def calcular_nbr(b08, b12):
     return np.where((b08 + b12) == 0, np.nan, (b08 - b12) / (b08 + b12))
 
 
+BBOX_DEFAULT = [-72.34, -35.38, -72.17, -35.27]  # Constitución / Maule
+MAX_PIXELS   = 2500  # límite Copernicus por dimensión
+RESOLUCION_M = 20    # metros por pixel
+
+
+def validar_bbox(bbox):
+    """
+    Valida y si es necesario recorta el bbox para que quepa en el límite
+    de Copernicus (2500×2500 px a 20m/px ≈ 50km × 50km).
+
+    Retorna:
+        bbox_valido  : [lon_o, lat_s, lon_e, lat_n] (posiblemente recortado)
+        ancho_px     : int
+        alto_px      : int
+        ancho_km     : float
+        alto_km      : float
+        recortado    : bool  (True si se tuvo que recortar)
+    """
+    lon_o, lat_s, lon_e, lat_n = bbox
+    lat_c = (lat_s + lat_n) / 2
+
+    m_por_grado_lon = 111_320 * math.cos(math.radians(lat_c))
+    m_por_grado_lat = 111_320
+
+    ancho_m = abs(lon_e - lon_o) * m_por_grado_lon
+    alto_m  = abs(lat_n - lat_s) * m_por_grado_lat
+
+    ancho_px = int(ancho_m / RESOLUCION_M)
+    alto_px  = int(alto_m  / RESOLUCION_M)
+
+    limite_m = MAX_PIXELS * RESOLUCION_M  # 50,000 m = 50 km
+    recortado = False
+
+    if ancho_m > limite_m:
+        exceso  = (ancho_m - limite_m) / 2
+        lon_o   = lon_o + exceso / m_por_grado_lon
+        lon_e   = lon_e - exceso / m_por_grado_lon
+        ancho_m = limite_m
+        ancho_px = MAX_PIXELS
+        recortado = True
+
+    if alto_m > limite_m:
+        exceso  = (alto_m - limite_m) / 2
+        lat_s   = lat_s + exceso / m_por_grado_lat
+        lat_n   = lat_n - exceso / m_por_grado_lat
+        alto_m  = limite_m
+        alto_px = MAX_PIXELS
+        recortado = True
+
+    return (
+        [round(lon_o, 6), round(lat_s, 6), round(lon_e, 6), round(lat_n, 6)],
+        ancho_px,
+        alto_px,
+        round(ancho_m / 1000, 1),
+        round(alto_m  / 1000, 1),
+        recortado,
+    )
+
+
 def crear_compuesto(lista_b04, lista_b08, lista_b12=None):
     """
     Apila varias imágenes y calcula el NDVI mediano pixel a pixel.
