@@ -19,6 +19,16 @@ from core import leer_banda, calcular_ndvi, calcular_nbr, crear_compuesto, detec
 import base64
 from copernicus_api import obtener_token, buscar_imagenes, descargar_compuesto, descargar_rgb
 
+@st.cache_data(show_spinner=False)
+def _geocodificar(lugar):
+    """Geocodifica un lugar — cacheado para no hacer requests repetidos."""
+    geolocator = Nominatim(user_agent="monitor_ia_deforestacion")
+    loc = geolocator.geocode(lugar)
+    if loc:
+        return (loc.latitude, loc.longitude, loc.address)
+    return None
+
+
 # ── Función Helper para Bbox de Dibujo Folium ───────────────────────────────
 def obtener_bbox_de_dibujo(dibujo):
     if not dibujo or "geometry" not in dibujo:
@@ -148,11 +158,10 @@ with st.sidebar:
         
         if buscar_lugar:
             try:
-                geolocator = Nominatim(user_agent="monitor_deforestacion_antigravity")
-                location = geolocator.geocode(buscar_lugar)
-                if location:
-                    st.session_state["centro_mapa"] = (location.latitude, location.longitude)
-                    st.success(f"Encontrado: {location.address[:40]}...")
+                loc = _geocodificar(buscar_lugar)
+                if loc:
+                    st.session_state["centro_mapa"] = (loc[0], loc[1])
+                    st.success(f"Encontrado: {loc[2][:50]}...")
                 else:
                     st.error("No se encontró el lugar. Intenta con más detalles (ej. Chile).")
             except Exception as e:
